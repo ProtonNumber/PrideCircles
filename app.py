@@ -3,6 +3,8 @@ import app
 import math
 from tildagonos import tildagonos, led_colours
 
+from system.eventbus import eventbus
+from system.patterndisplay.events import *
 
 from events.input import Buttons, BUTTON_TYPES
 
@@ -55,9 +57,39 @@ class RoundPride(app.App):
     ]
     currentFlag = 0
     startLed = 0
+    ledLoop = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0],
+               [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0],
+               [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+
+    def placeBand(self, n, t):
+        return round((12/(t)*(n)))
+
+    def generateLoop(self):
+        flag = self.flags[self.currentFlag % len(self.flags)]
+        bands = len(flag.colours)
+        for i in range(bands):
+            currentPos = self.placeBand(i, bands)
+            nextPos = self.placeBand(i+1, bands)
+            delta = nextPos-currentPos
+
+            startColour = flag.colours[i]
+            endColour = flag.colours[(i+1)%bands]
+
+            rstep = (endColour[0]-startColour[0])/delta
+            gstep = (endColour[1]-startColour[1])/delta
+            bstep = (endColour[2]-startColour[2])/delta
+
+
+            self.ledLoop[self.placeBand(i, bands)] = startColour
+            for j in range(delta):
+                self.ledLoop[currentPos+j] = [round(startColour[0] + rstep * j),
+                                              round(startColour[1] + gstep * j),
+                                              round(startColour[2] + bstep * j)]
 
     def __init__(self):
         self.button_states = Buttons(self)
+        self.generateLoop()
+        eventbus.emit(PatternDisable())
 
     def update(self, delta):
         if self.button_states.get(BUTTON_TYPES["CANCEL"]):
@@ -70,15 +102,20 @@ class RoundPride(app.App):
             self.button_states.clear()
             # Add an overlay rectangle
             self.currentFlag = self.currentFlag + 1
+            self.generateLoop()
         if self.button_states.get(BUTTON_TYPES["LEFT"]):
             self.button_states.clear()
             # Remove an overlay rectangle
+            self.generateLoop()
             self.currentFlag = self.currentFlag - 1
 
         for i in range(0, 12):
-            tildagonos.leds[(i + self.startLed) % 12] = (0, 0, 0)
+            tildagonos.leds[(i + self.startLed) % 12 + 1] = self.ledLoop[i]
 
         self.startLed = (self.startLed + 1) % 12
+
+        # Lazy fix for a concurrency issue. Hopefully your battery doesnt mind.
+        self.generateLoop()
 
 
     def draw(self, ctx):
