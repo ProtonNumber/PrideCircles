@@ -85,6 +85,15 @@ class RoundPride(app.App):
                 self.ledLoop[currentPos+j] = [round(startColour[0] + rstep * j),
                                               round(startColour[1] + gstep * j),
                                               round(startColour[2] + bstep * j)]
+    def updateLeds(self):
+        for i in range(0, 12):
+            tildagonos.leds[(i + self.startLed) % 12 + 1] = self.ledLoop[i]
+
+        self.startLed = (self.startLed + 1) % 12
+
+        # Lazy fix for a concurrency issue. Hopefully your battery doesnt mind.
+        self.generateLoop()
+
 
     def __init__(self):
         self.button_states = Buttons(self)
@@ -109,13 +118,10 @@ class RoundPride(app.App):
             self.generateLoop()
             self.currentFlag = self.currentFlag - 1
 
-        for i in range(0, 12):
-            tildagonos.leds[(i + self.startLed) % 12 + 1] = self.ledLoop[i]
+        self.updateLeds()
 
-        self.startLed = (self.startLed + 1) % 12
-
-        # Lazy fix for a concurrency issue. Hopefully your battery doesnt mind.
-        self.generateLoop()
+    def background_update(self, delta):
+        self.updateLeds()
 
 
     def draw(self, ctx):
