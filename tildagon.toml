@@ -31,10 +31,10 @@ license = "LGPL-3.0-only"
 url = "https://github.com/ProtonNumber/PrideCircles"
 
 # Description of your app.  Maximum 140 characters!
-description = "A simple pride flag visualiser, but circles! Use the B and E buttons to cycle through flags. Now with LEDs!"
+description = "A simple pride flag visualiser, but circles! Use the B / E buttons to cycle through flags, use A / D to control brightness. Now with LEDs!"
 
 # Version number of your app.  If you push a commit where this number is
 # increased, we interpret this as a new version being released.
 #
 # Version number must be an integer!
-version = "0.1.1"
+version = "0.2.0"
