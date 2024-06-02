@@ -13,12 +13,17 @@ class RoundPride(app.App):
 
     currentFlag = 0
     startLed = 0
+    brightness = 1
 
     def updateLeds(self):
         toDraw = flag.flags[self.currentFlag % len(flag.flags)]
 
         for i in range(0, 12):
-            tildagonos.leds[(i + self.startLed) % 12 + 1] = toDraw.ledLoop[i]
+            colour = [0, 0, 0]
+            colour[0] = round(toDraw.ledLoop[i][0] * self.brightness)
+            colour[1] = round(toDraw.ledLoop[i][1] * self.brightness)
+            colour[2] = round(toDraw.ledLoop[i][2] * self.brightness)
+            tildagonos.leds[(i + self.startLed) % 12 + 1] = colour
 
         self.startLed = (self.startLed + 1) % 12
 
@@ -42,6 +47,12 @@ class RoundPride(app.App):
             self.button_states.clear()
             # Remove an overlay rectangle
             self.currentFlag = self.currentFlag - 1
+        if self.button_states.get(BUTTON_TYPES["UP"]):
+            self.button_states.clear()
+            self.brightness = self.brightness + 0.1 if self.brightness < 1 else 1
+        if self.button_states.get(BUTTON_TYPES["DOWN"]):
+            self.button_states.clear()
+            self.brightness = self.brightness - 0.1 if self.brightness > 0 else 0
 
         self.updateLeds()
 
