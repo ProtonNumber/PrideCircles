@@ -2,7 +2,7 @@ import asyncio
 import app
 import math
 
-import apps.pridecircles.flag as flag
+from .flag import *
 
 from tildagonos import tildagonos, led_colours
 from system.eventbus import eventbus
@@ -16,7 +16,7 @@ class RoundPride(app.App):
     brightness = 1
 
     def updateLeds(self):
-        toDraw = flag.flags[self.currentFlag % len(flag.flags)]
+        toDraw = flags[self.currentFlag % len(flags)]
 
         for i in range(0, 12):
             colour = [0, 0, 0]
@@ -62,7 +62,7 @@ class RoundPride(app.App):
 
     def draw(self, ctx):
 
-        toDraw = flag.flags[self.currentFlag % len(flag.flags)]
+        toDraw = flags[self.currentFlag % len(flags)]
         bands = len(toDraw.colours)
         for i in range(bands):
             colour = toDraw.colours[i]
