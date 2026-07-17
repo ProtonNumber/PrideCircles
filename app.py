@@ -14,18 +14,23 @@ class RoundPride(app.App):
     currentFlag = 0
     startLed = 0
     brightness = 1
+    oddTick = False
 
     def updateLeds(self):
-        toDraw = flags[self.currentFlag % len(flags)]
+        self.oddTick = not self.oddTick
+        if not self.oddTick:
 
-        for i in range(0, 12):
-            colour = [0, 0, 0]
-            colour[0] = round(toDraw.ledLoop[i][0] * self.brightness)
-            colour[1] = round(toDraw.ledLoop[i][1] * self.brightness)
-            colour[2] = round(toDraw.ledLoop[i][2] * self.brightness)
-            tildagonos.leds[(i + self.startLed) % 12 + 1] = colour
+            toDraw = flags[self.currentFlag % len(flags)]
 
-        self.startLed = (self.startLed + 1) % 12
+            for i in range(0, 12):
+                colour = [0, 0, 0]
+                colour[0] = round(toDraw.ledLoop[i][0] * self.brightness)
+                colour[1] = round(toDraw.ledLoop[i][1] * self.brightness)
+                colour[2] = round(toDraw.ledLoop[i][2] * self.brightness)
+                tildagonos.leds[(i + self.startLed) % 12 + 1] = colour
+
+            self.startLed = (self.startLed + 1) % 12
+            tildagonos.leds.write()
 
 
     def __init__(self):
