@@ -14,11 +14,12 @@ class RoundPride(app.App):
     currentFlag = 0
     startLed = 0
     brightness = 1
-    oddTick = False
+    tickCount = 0
+    period = 2
 
     def updateLeds(self):
-        self.oddTick = not self.oddTick
-        if not self.oddTick:
+        self.tickCount = (self.tickCount + 1) % (self.period + 1)
+        if self.tickCount == 0:
 
             toDraw = flags[self.currentFlag % len(flags)]
 
@@ -58,6 +59,9 @@ class RoundPride(app.App):
         if self.button_states.get(BUTTON_TYPES["DOWN"]):
             self.button_states.clear()
             self.brightness = self.brightness - 0.1 if self.brightness > 0 else 0
+        if self.button_states.get(BUTTON_TYPES["CONFIRM"]):
+            self.button_states.clear()
+            self.period = (self.period + 1) % 6
 
         self.updateLeds()
 
