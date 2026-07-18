@@ -12,26 +12,27 @@ from events.input import Buttons, BUTTON_TYPES
 class RoundPride(app.App):
 
     currentFlag = 0
+    startIndex = 0
     startLed = 0
     brightness = 1
-    tickCount = 0
-    period = 2
+    freq = 1
+
 
     def updateLeds(self):
-        self.tickCount = (self.tickCount + 1) % (self.period + 1)
-        if self.tickCount == 0:
 
-            toDraw = flags[self.currentFlag % len(flags)]
+        toDraw = flags[self.currentFlag % len(flags)]
 
-            for i in range(0, 12):
-                colour = [0, 0, 0]
-                colour[0] = round(toDraw.ledLoop[i][0] * self.brightness)
-                colour[1] = round(toDraw.ledLoop[i][1] * self.brightness)
-                colour[2] = round(toDraw.ledLoop[i][2] * self.brightness)
-                tildagonos.leds[(i + self.startLed) % 12 + 1] = colour
+        for i in range(0, 12):
+            colour = [0, 0, 0]
+            index = (self.startIndex + i * 10) % 120
+            colour[0] = round(toDraw.ledLoop[index][0] * self.brightness)
+            colour[1] = round(toDraw.ledLoop[index][1] * self.brightness)
+            colour[2] = round(toDraw.ledLoop[index][2] * self.brightness)
+            tildagonos.leds[(i + self.startLed) % 12 + 1] = colour
 
-            self.startLed = (self.startLed + 1) % 12
-            tildagonos.leds.write()
+        tildagonos.leds.write()
+        self.startIndex = int(self.startIndex + 120/(self.freq+12)) % 120
+        self.startLed = (self.startLed + 1) % 12
 
 
     def __init__(self):
@@ -61,7 +62,9 @@ class RoundPride(app.App):
             self.brightness = self.brightness - 0.1 if self.brightness > 0 else 0
         if self.button_states.get(BUTTON_TYPES["CONFIRM"]):
             self.button_states.clear()
-            self.period = (self.period + 1) % 6
+            self.freq = (self.freq + 1)
+            if self.freq > 6:
+                self.freq = 1;
 
         self.updateLeds()
 
@@ -80,15 +83,6 @@ class RoundPride(app.App):
             ctx.rgb(colour[0]/255, colour[1]/255, colour[2]/255)
             ctx.arc(0, 0, radius, 0, 2*math.pi, True).fill()
             ctx.restore()
-
-        # TODO: Fix this when the badge team fix image loading
-        #if flag.image != None:
-        #    image = flag.image
-        #    ctx.save()
-        #    ctx.image(image.path, image.pos[0], image.pos[1],
-        #              image.dims[0], image.dims[1])
-        #    ctx.restore()
-
 
 
 
